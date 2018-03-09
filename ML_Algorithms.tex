@@ -1,0 +1,567 @@
+\documentclass[11pt]{article} % 11pt font size
+\usepackage{mystyle}
+\usepackage[margin=5pt, landscape]{geometry} % Overrides any geometry specified above
+\usepackage{multicol}
+%\everymath{\displaystyle} % Force entire document to assume \displaystyle. DO NOT DELETE.
+
+\title{Machine Learning Notes}
+\author{Vitaly Parnas}
+
+\usepackage[compact]{titlesec}
+\titlespacing{\section}{0pt}{*0}{*0}
+\titlespacing{\subsection}{0pt}{*0}{*0}
+\titlespacing{\subsubsection}{0pt}{*0}{*0}
+
+\setlength{\parindent}{0pt} % Stop paragraph indentation
+
+%\setlength{\parskip}{0pt}
+%\setlength{\parsep}{0pt}
+%\setlength{\headsep}{0pt}
+%\setlength{\topskip}{0pt}
+%\setlength{\topmargin}{0pt}
+%\setlength{\topsep}{0pt}
+%\setlength{\partopsep}{0pt}
+
+\begin{document}
+\begin{multicols}{3}
+\section*{\fbox{Supervised Algorithms}}
+% TODO: introduce abbreviations
+
+\subsection*{Regression}
+\elist {
+    # Single and multivariate
+    # $h_{\vec{w}}(\vec{x_j}) = \vec{w}\transpose \vec{x_j} = \sum_i w_ix_{j,i}$
+    # $\vec{w^*} = \argmin_{\vec{w}} \sum_j L_2(y_j, \vec{w}\transpose \vec{x_j})$
+    # Regularization $\gamma$ to penalize complexity
+    # $Cost(h) = EmpLoss(h) + \gamma L_q(\vec{w})$
+    # Complexity: $L_q(\vec{w}) = \sum_i |w_i|^q$
+    # \textbf{Linear Regression}
+        ## Directly computable
+    # \textbf{Non-Linear Regression}
+        ## Differentiable, use \emph{gradient descent}
+    # \textbf{Stepwise Regression} (Perceptron function)
+        ## Linearly separable data/Hard Threshold
+        ## $h_\vec{w}(\vec{x}) = Threshold(\vec{w} \cdot \vec{x})$
+        ## $Threshold(z) = 1 \text{ if } z \geq 0, 0 \text{ otherwise}$
+        ## Not differentiable - use perceptron learning
+    # \textbf{Logistic Regression} (Sigmoid Function)
+        ## Soft threshold
+        ## $Logistic(z) = \frac{1}{1 + e^{-z}}$
+        ## $h_\vec{w}(\vec x) = g(\vec w \cdot \vec x) = Logistic(\vec w \cdot \vec x)$
+        ## Differentiable, use \emph{gradient descent}
+        ## Nice property: $g'(u) = g(u)(1 - g(u))$
+}
+
+\subsection*{Decision Trees (DT)}
+\elist {
+    # \emph{Analogy}: human decision-making paradigm
+    # Can represent any truth table
+    # \emph{Inductive bias}: best attribute/dimension first
+    # Best = Highest information gain (entropy)
+    %# $|H| = 2^{2^n}$
+    # Hypothesis complexity: \# tree levels and nodes
+    # Discrete attributes: split point for each value
+    # Continuous attributes: establish split threshold
+    # Prune tree to eliminate overfitting
+    # \textbf{Iterative Dichotomiser} (ID3)
+}
+
+\subsection*{Instance Based}
+\elist{
+    # Nonparametric: grows with \# of examples
+    # \emph{Inductive Bias}: 
+        ## locality (near points are similar)
+        ## all dimensions are of equal importance
+    # Lazy learner/just-in-time learning
+    # Curse of Dimensionality, w/ $N$ examples, $d$ dim.: 
+        ## $N = O(2^d)$ to maintain generalization accuracy.
+    # \textbf{K Nearest Neighbors} (KNN) Classification
+        ## Given $x_q$, find $k$ nearest examples
+        ## Classify based on plurality vote w/ odd $k$
+        ## Low $k$ can overfit, and high $k$ underfit
+        ## Minkowski distance: \\
+        $L_p(x_q,x_j) = (\sum_i|x_{j,i} - x{q,i}|^p)^{1/p}$
+            ### $p = 2$: Euclidean Distance
+            ### $p = 1$: Manhattan ""
+        ## Any other abstract distance function
+        ## Normalize if dimension scale changes
+    # \textbf{KNN average regression}
+        ## $h(x) = \sum_i y_i/k$, $y_i \in k$ nearest points.
+        ## larger $k$: smoother spikes; discontinuities
+    # \textbf{KNN linear regression}
+        ## Plot a line through $k$ examples
+        ## Discontinuities still an issue
+    # \textbf{Locally weighted regression}
+        ## Smooth curve, avoid discontinuities
+        ## Use kernel function $K(dist(x_q, x_j))$
+            ### more weight on closer points
+        ## $w^* = \argmin_w \sum_j K(d(x_q,x_j))(y_j - w \cdot x_j)^2$
+        ## $h(x_q) = w^* \cdot x_q$
+        ## Must solve for $w^*$ for $\forall$ query points.
+        ## But only points overlapping kernel matter.
+}
+
+\subsection*{Ensemble Learning}
+\elist{
+    # Vote among multiple hypotheses
+    # \emph{Inductive Bias}: Mult. hyp. generalize better
+    # $\prob{h_k(x) \neq y_k}$ indep for $\forall k$
+    # more complex $h$ via linear combo of $h_k$.
+    # \textbf{Boosting/AdaBoost}
+        ## For each $h_i$ (weak classifier) 
+            ### correctly classified $x$: decrease weight
+            ### incorrectly classified: increase weight
+        ## Ultimately more emphasis on misclassified
+        ## Produce weighted average of all hypotheses
+        ## $f(x) = \sum_{t=1}^k \alpha_th_t(x)$, a strong classifier
+        ## $\uparrow k \goesto$ near perfect training error
+        ## requires $h(i)$ has error rate > $50\% + \epsilon$
+        ## Will overfit if weak learner always overfits
+    # \textbf{Random Forest}
+        ## \emph{Analogy}: multiple interviewers 
+            ### Randomly ask different questions 
+            ### Vote on whether to hire candidate
+        ## Multiple decision trees vote on answer
+        ## Random sampling prevents overfitting
+        ## For each of $k$ trees:
+            ### Randomly sample from a subset of $X$
+            ### "" "" subset of features
+            ### Learn tree from the sampled data
+}
+
+\subsection*{Neural Networks (NN)}
+\elist {
+    # \emph{Analogy}: brain neural connections and learning
+    # Input layer, $0 \leq $ hidden layers, output layer
+    # Domain knowledge helps establish structure
+    # Model \emph{any} function with enough nodes/layers
+    # For each layer $i$ w/ $n_i$ inputs $\vec{a_i} \in \mathbb{R}^{n_i}$
+        ## Bias weight $b_i \in \mathbb{R}$
+        ## Input weights to next layer: $W_i \in \mathbb{R}^{n_i \times n_{i+1}}$
+        ## Activation function $g$
+            ### Apply to weighted sum of inputs + bias
+            ### $\vec{a_{i+1}} = g(W_i \transpose a_i + b_i)$
+    # Perceptron (step) activation function
+        ## $g(z) = {1 \cif{z > 0}}, {0 \cotherw}$
+    # Logistic/Sigmoid Function (Gaussian integrated):
+        ## $g(z) = \frac{1}{1+e^{-z}}$
+    # \textbf{Back Propagation} learning
+        ## Initiate input layer weights and bias
+        ## Observed error: $L_2(W) = |\vec y - h_W(\vec x)|^2$
+        ## Update output weights via observed error
+            ### Use \emph{gradient descent} 
+        ## From output to earliest hidden layer:
+            ### Propagate $\Delta$ values to previous layer
+            ### Update weights between the two layers
+        ## (each hidden node resp. for some error)
+}
+
+\subsection*{Deep Learning}
+\elist {
+    # Applications:
+        ## B/W image colorization
+        ## Sound generation from silent media
+        ## Machine translations
+        ## Object detection
+        ## Handwriting generation and recognition
+        ## [Eloquent] Text generation via recurrent NN
+        ## Game Playing (in a human-like way)
+        ## Speech recognition
+        ## Image object detection, classification, de-abstractization, sketch inversion
+        ## Natural Language Processing
+}
+
+\subsection*{Support Vector Machines (SVM)}
+\elist {
+    # Maximum margin separator between examples
+    # Non-param., but needs frac. of ex. (support vectors)  
+    # Expensive: use quadratic programming - $O(n^3)$
+    # Support vectors lie along decision boundary
+    # Kernels (kernel function)
+        ## notion of similarity between data
+        ## linearly-separable data: 
+            ### linear kernel: $K(x,y) = x\transpose y$
+        ## non-linearly separable data
+            ### polynomial: $K(x,y) = (x\transpose y + c)^d$
+            ### project data to higher dimension
+            ### dividing hyperplane in $d+1$ dimensions
+                #### $d$ degrees of freedom
+        ## Radial-Basis: $K(x,y) = e^{-(\norm{x-y}^2/(2\sigma^2))}$
+        ## Sigmoid: $K(x,y) = tanh(\alpha x\transpose y + \theta)$
+        ## Kernels for other abstract similarity...
+        ## Requires some domain knowledge of data
+    # Regularization constant $C$ and Soft-Margin SVM
+        ## $\downarrow C$: permit points to fall inside margin
+    # Multi-class classification: 1vs1 or 1vs$\forall$ strategies
+}
+
+\subsection*{Randomized Algorithms/Optimization}
+\elist {
+    # Given i/p $X$, objective/fitness func. $f:X\mapsto \mathbb{R}$
+        ## find $x \in X$ such that $f(x) = \max_x f(x)$
+    # \textbf{Hill Climbing} (HC)
+        ## \emph{Analogy}: Climb Everest in fog w/ amnesia
+        ## Start at arbitrary location in input space
+        ## Move to the highest-value neighbor
+        ## If neighbor > current, proceed to neighbor
+        ## Else return current. Possibly only \emph{local max}.
+    # \textbf{Random Restart Hill Climbing} (RHC)
+        ## Alleviates local max somewhat
+        ## Restarts at random point a constant \# of times.
+    # \textbf{Simulated Annealing} (SA, Metropolis Hastings)
+        ## \emph{Analogy}: Rept'd heat/cool'g strengthens blade.
+        ## Allow bad moves, but with decreasing freq.
+        ## $T$: some gradually decreasing temperature func.
+        ## $\Delta E = Value(next) - Value(curr)$
+        ## If $\Delta E \leq 0$ take bad move w/ prob. $e^{\Delta E/T}$
+        ## As $T \rightarrow 0$, transitions \emph{Random Walk} $\rightarrow$ \emph{HC}.
+    # \textbf{Genetic Algorithms} (GA)
+        ## \emph{Analogy}: Natural selection and mutation
+        ## \emph{Apps}: Opt problems w/ approp. encoding
+            ### 8-Queens, circuit layout, job schedule
+        ## Select most fit pairs among population
+        ## Reproduce (cross-over) each pair
+            ### One-point crossover strategy
+            ### Uniform crossover strategy (random bits)
+        ## Mutate offspring with small probability
+        ## Replace least-fit individuals with new offspring
+        ## Repeat until convergence
+    # \textbf{MIMIC} %TODO: elaborate
+        ## Model probability distribution instead of:
+        ## Population (non-parametric representation)
+        ## Convey structure
+        ## Generate samples from distribution $P^{\theta_t}(x)$
+        ## Set $\theta_{t+1}$ to n'th percentile
+        ## Retain only samples with $f(x) \geq \theta_{t+1}$
+        ## Estimate $P^{\theta_{t+1}}(x)$ 
+        ## Repeat until convergence
+        ## Technical details:
+            ### Estimate distribution via dependency tree
+            ### Use the \emph{KL divergence} from info theory
+            ### Vastly fewer iterations than above algs
+            ### Each iteration much more costly
+}
+
+\subsection*{Bayesian}
+\elist {
+    # Most prob. $h$ given the data: $\argmax_{h \in H} \prob{h|D}$
+    # Bayes Rule: $\prob{h|D} = \prob{D|h}\prob{h}/\prob{D}$
+    # Maximum a posteriori (MAP): 
+        ## $h_{MAP} = \argmax_h \prob{D|h}\prob{h}$
+        ## disregard the normalizer $\prob{D}$ 
+    # Maximum likelihood: $h_{ML} = \argmax_h \prob{D|h}$
+        ## assumes uniform $\prob{h}$. Actual $h$ irrelevant.
+        ## if Gaussian noise in data $\goesto \argmin_h L_2$ error.
+    # Problems:
+        ## Requires domain knowledge of prior probabilities
+        ## Expensive to compute, being linear in $|H|$ 
+    # \textbf{Bayesian Optimal Classifier}
+        ## Most probable \emph{classification} given the data
+        ## Combine weighted predictions of $\forall h_i$ given data
+        ## $V_{MAP} = \argmax_v \sum_h \prob{v|h}\prob{h|D}$
+    # \textbf{Bayesian Belief Networks} (Bayes Nets)
+        ## Cond. indep. assumptions for $X$ and $Y$ given $Z$
+            ### $\prob{X|Y, Z} = \prob{X|Z}$
+        ## Conditional probabilities
+        ## Sample nodes in \emph{Topological Sort}
+        ## \emph{apps}: simulate/approximate a complex process
+    # \textbf{Naive Bayes} 
+        ## assume data independence given parent.
+        ## $\rightarrow$ assume attr. independence given class.
+            ### No guarantee in the real world.
+        ## \emph{apps}: classifying text documents
+            ### Attributes: words. Values: frequencies, OR
+            ### Attributes: word positions. Values: words.
+        ## $V_{NB} = \argmax_V \prob{V}\prod_i \prob{a_i|V}$
+        ## Requires sufficiently large set of training data
+        ## Tractable: requires no search 
+}
+
+\subsection*{Classification Metrics}
+
+%\vfill\null
+%\columnbreak
+\section*{\fbox{Unsupervised Algorithms}}
+\subsection*{Clustering}
+\elist {
+    # \textbf{Single-Linkage Clustering} 
+        ## Start with $n$ points
+        ## Intercluster distance: closest two points in each
+            ### Alternatives: median, mean distance
+        ## Merge two closest clusters 
+        ## Repeat $n - k$ times to produce $k$ clusters
+        ## $O(n^3)$, but practically fast
+    # \textbf{K-Means Clustering} (in Euclidean Space) 
+        ## 'Hard' clustering (special case of EM Clustering)
+        ## \emph{Apps}: Image segmentation and compression
+        ## Pick $k$ centers at random (or distributed)
+        ## Each center "claims" its closest points 
+            ### Closest $\rightarrow$ minimizing $L_2$ error.
+        ## Recompute the centers (avg clustered points)
+        ## Repeat until convergence (to \emph{local minimum}!)
+        ## $O(kn)$ per iteration, and $O(k^n)$ iterations.
+    # \textbf{K-Medoids Clustering} 
+        ## Not Euclidean-Space $\rightarrow$ cannot use $L_2$ error.
+        ## Use abstract $\mathcal{V}(x_n, \mu_k)$ instead of $\norm{x_n - \mu_k}^2$
+        ## Can't take average of clusters.
+        ## Can assign $\mu_k$ to one of cluster points
+        ## $O(kn + n_k^2)$ per iteration
+    # \textbf{Expectation-Maximization} (EM Clustering)
+        ## 'Soft' clustering 
+            ### Point shared by mult. clusters prob'ly
+        ## Gaussian mixture model: 
+            ### $f(x) = \sum_{i=1}^k \pi_i N_i(x|\mu_i,\sigma_i^2)$
+            ### $\pi_i$: mixing coefficient. $\sum_{i=1}^k \pi_i = 1$
+            ## Mixed Gaussian $(\mu,\sigma^2)$ for each cluster
+        ## Pick initial hidden vars: $\mu_k$, covariances, and $\pi_k$.
+        ## $E-step$: prob. of component $k$ explaining $x$
+        ## $M-step$: Re-estimate hidden vars 
+        ## Iterate until log-likelihood reaches convergence
+            ### $\log \prob{\vec{X}|\vec{\mu},\vec{\sigma^2},\vec{\pi}} = \\
+            \sum_{n=1}^N \log \cbrace{\sum_{k=1}^K \pi_kN(x_n|\mu_k,\sigma^2_k)}$
+        ## Local optima possible $\rightarrow$ random restart.
+}
+
+\subsection*{Dimensionality Reduction}
+\elist {
+    # \emph{Filtering}: Feature selection abstracted from learner
+        ## Fast, but ignore the learning problem
+        ## Ex: DT learning, information gain, variance
+    # \emph{Wrapping}: Coupled with learner as one routine
+        ## Takes model bias into account, but SLOW.
+        ## Ex: Hill Climbing, Rand. Algorithms
+    # \emph{Forward Search}: 
+        ## Start with empty set of features.
+        ## Add most 'contributing' features until threshold.
+    # \emph{Backward Search}: 
+        ## Start with full set of features. 
+        ## Remove most 'useless' features until threshold.
+    # \textbf{Principle Component Analysis} (PCA)
+        ## Mutually orthogonal and ordered transformed features
+        ## Gravitate towards 'average' of features
+        ## 'Best' dimension: highest \emph{variance}/\emph{eigenvalue}
+        ## This is the \emph{First Principle Component}
+            ### Find via \emph{SVD} in Linear Algebra
+        ## Find orthogonal (\emph{Second Principle}) component 
+        ## Idea: min. $L_2$ error moving from $N \rightarrow M$ dims
+        ## Select best components with non increasing var.
+        ## Eliminate dimensions beyond best $M$
+    # \textbf{Independent Component Analysis} (ICA)
+        ## Mutually independent transformed features
+        ## Gravitate towards 'abstracted' components
+        ## \emph{Apps}: Cocktail party problem, mixed models
+        ## Min. \emph{mutual information} for transf. features
+            ### Maximizing \emph{kurtosis} of a dim. is one way.
+        ## $\rightarrow I(y_i;y_j) = 0$ (or minimum)
+        ## $I(X;Y)$ is max. (between \emph{orig.} \& transformed)
+        ## Idea: given observables, find indep. hidden var.
+    # \textbf{Random Component Analysis} (RCA)
+        ## Linear transformation in random directions
+        ## \emph{Random} linear. combo of orig. dims still useful
+        ## For $N \rightarrow M$, $M$ normally $\uparrow$ than PCA/ICA.
+        ## Fast. But requires many random trials.
+    # \textbf{Linear Discriminant Analysis} (LDA)
+        ## Finds projection that \emph{discriminates} on label.
+}
+
+\subsection*{Classification Metrics}
+\elist {
+    # Accuracy
+    # Precision
+    # Recall
+    # $F_b$
+}
+
+%\vfill\null
+%\columnbreak
+\section*{\fbox{Reinforcement Learning}}
+\subsection*{Markov Decision Processes (MDP)}
+\elist {
+    # \emph{Markov}: Only present matters. Stationary rules.
+    # $a \in Actions$, $s, s' \in States$
+    # \emph{Model}: $T(s, a, s') \approx \prob{s'|s,a}$
+    # \emph{Reward}: $R(s), R(s,a), R(s,a,s')$ (typically 1st form)
+    # \emph{Policy}: $\pi(s) \goesto a$. 
+        ## $\pi^*$: optimal policy w/ max reward.
+    # \emph{Infinite horizon}: navigate world forever, $\infty$ rewards.
+    # \emph{Finite horizon}: discount $\gamma$ to incentivise finish.
+    # $\pi^*(s) = \argmax_a \sum_{s'}T(s,a,s')U(s')$
+    # \textbf{Bellman Equation}: 
+        ## $U(s) = R(s) + \gamma \max_a \sum_{s'}T(s,a,s')U(s')$
+        ## $U(s)$: state utility, $R(s)$: state reward
+        ## $n$ states $\goesto n$ equations, $n$, unknowns
+        ## non-linear due to \emph{max} operation
+    # \textbf{Value Iteration} (VI)
+        ## Start w/ arbitrary utilities
+        ## Update based on neighbors
+            ### $\hat U_{t+1}(s) = R(s) + \gamma \max_a \sum_{s'}T(s,a,s')\hat U_t(s')$
+        ## Repeat until convergence
+        ## Then solve for $\pi^*$, straightforward
+        ## Lends itself for parallel computation
+    # \textbf{Policy Iteration} (PI)
+        ## Start with arbitrary $\pi_0$
+        ## Given $\pi_t$, calculate $U_t = U^{\pi_t}$ (follow policy)
+            ### $U_{t}(s) = R(s) + \gamma \sum_{s'}T(s,\pi_t(s),s')U_t(s')$
+            ### The action is fixed from the policy $\pi_t(s)$
+            ### $n$ \emph{linear} eq, $n$ unknowns. $\goesto$ Linear Algebra.
+        ## Improve: $\pi_{t+1} = \argmax_a \sum_{s'}T(s,a,s')U_t(s')$
+}
+
+\subsection*{Reinforcement Learning (model-free)}
+\elist {
+    # No model (transition probabilities) or rewards
+    # Given transitions $<s,a,r,s'>$, learn policy
+    # \textbf{Q-Learning}
+        ## $Q(s,a) = R(s) + \gamma \sum_{s'}T(s,a,s')\max_{a'}Q(s',a')$
+        ## Derive $U$ and $\pi$ from $Q$:
+            ### $U(s) = \max_a Q(s,a)$
+            ### $\pi(s) = \argmax_a Q(s,a)$
+        ## Estimate from transitions (w/out $R$ \& $T)$:
+        ## $\hat Q(s,a) \xleftarrow{\alpha_t} r + \gamma max_{a'} \hat Q(s',a')$ 
+            ### $\alpha_t$: learning rate
+            ### $max_{a'} \hat Q(s',a')$: util. of next state
+            ### Notation: $v \xleftarrow{\alpha} x = v \leftarrow (1 - \alpha)v + \alpha x$
+        ## $\hat Q$ starts anywhere (results will vary)
+        ## Following update rule above, $\hat Q(s,a) \goesto Q(s,a)$
+        ## Visiting $s,a$ $\infty$ times, $s' \approx T(s,a,s'), r \approx R(s)$
+        ## Questions:
+            ### Initial $\hat Q$
+            ### $\alpha_t$ decay factor?
+            ### action choosing policy?
+                #### Take random action \emph{sometimes}
+                #### Otherwise take best action
+                #### Mimics simulated annealing
+        ## \emph{Exploration vs. Exploitation}
+            ### Exploration: cont. to learn $Q$
+            ### Exploitation: quicker maximize $\pi^*$
+}
+
+%\vfill\null
+%\columnbreak
+\section*{\fbox{Game Theory}}
+\subsection*{Zero-Sum Games}
+\elist{
+    # \textbf{Minimax/Maximin}
+        ## Player A considers worse-case strategy by B
+        ## A chooses maximum minimum value by B
+        ## B chooses the minimum maximum value by A
+        ## Applies to \emph{perfect} or \emph{hidden} information games
+    # \emph{Von Neumann}
+        ## 0-sum games of per. info: \emph{minimax}=\emph{maximin}.
+        ## $\exists$ optimal strategy for each player
+    # Optimal \emph{Mixed Strategy} for 2X2 game
+        ## Two players, A \& B, strategies $A_1, A_2, B_1, B_2$
+        ## Mixed strategy gains: $\vec{m_{AB}}: m_{11}, m_{21}, m_{12}, m_{22}$
+        ## A uses strategy 1 w/ probability $p$
+        ## $eg_i$: Expected gain for A given B uses strategy $i$
+        ## $eg_1 = m_{11}p + m_{21}(1-p)$
+        ## $eg_2 = m_{12}p + m_{22}(1-p)$
+        ## $p^* = \max_p\cbrace{\min \cbrace{eg_1, eg_2}}$
+            ### Either $p=0, p=1$, or where both equal
+    # Optimal \emph{Mixed Strategy} for $nXm$ game
+        ## $\vec{P_A} = \cbrace{p_1, p_2, ..., p_n}$
+        ## $eg_j = \sum_{i=1}^n m_{ij}p_i$ for all $j \in {1,...,m}$
+        ## $n$ unknowns, $m$ eq. $\goesto$ Linear Programming
+            ### Choose $\vec{P_A}$ to maximize $\min\cbrace{eg_1,...,eg_m}$
+            ### such that $\sum p_i = 1, 0\leq p_i \leq 1. \forall i$
+}
+
+\subsection*{Non-Zero-Sum Games}
+\elist {
+    # Non-deterinistic, non-cooperative, hidden info
+    # Typical example: Prisoner's Dilemma
+    # $n$ strategy spaces $\vec S_1, \vec S_2, ..., \vec S_n$
+    # $n$ payoff functions $u_1, ..., u_n$ st $u_i: \vec S_1 \times \cdots \times \vec S_n \goesto \mathbb{R}$
+    # What's the optimal mixed strategy?
+    # \textbf{Nash Equilibrium} (NE)
+        ## $s_1^*, ..., s_n^* \in S_1 \times \cdots \times S_n$ are a NE iff
+            ### $\forall i. s_i^* = \argmax_{s_i} u_i(s_1^*,...,s_i,...,s_n^*)$
+            ### ($\neg \exists$ reason for any one player to switch)
+        ## Works for pure \& mixed strategies
+        ## Assumes best action for self (regardless of others)
+        ## Can contain multiple Nash Equilibria
+        ## An \emph{implausible} threat hinders own utility
+        ## $n$ \emph{repeated games} $\goesto n$ repeated NE
+            ### assuming implausible threats
+}
+
+\subsection*{Bayesian Games}
+\elist {
+    # Action spaces: $\vec{A_1},...,\vec{A_n}$
+    # Type spaces: $\vec{T_1},...,\vec{T_n}$
+    # Beliefs: $\vec{P_1},...,\vec{P_n}$
+    # $P_{-i}(t_{-i}|t_i)$ = PDF of others' types given own
+    # Payoff functions: $u_1,...,u_n$
+    # $u_i(a_1,...,a_n,t_i)$ - payout to player $i$ w/ type $i$
+       ## player $j$ chooses action $a_j$ for $\forall j$
+    # All players know their own $\vec{A_i}, \vec{T_i}, \vec{P_i}, u_i$
+    # Strategy $S_i: \vec{T_i} \goesto \vec{A_i}$
+    # \textbf{Bayesian Nash Equilibrium} (BNE)
+        ## $s_1^*, ..., s_n^* \in S_1 \times \cdots \times S_n$ are a BNE iff $\forall i$ and $\forall t_i \in \vec{T_i}$.
+        $s_i^*(t_i) = \argmax_{a_i \in \vec{A_i}} \\ \cbrace{\sum_{t_{-i} \in \vec{T_{-i}}} u_i(s_1^*(t_1),...,a_i,...,s_n^*(t_n)) \times P_i(t_{-i}|t_i)}$
+}
+
+\subsection*{Repeated games w/ uncertain end}
+\elist {
+    # \# rounds left is uncertain
+    # $\prob{play again} = \gamma$, $\prob{game over} = 1 - \gamma$
+    # $\expect{\# rounds} = 1/(1- \gamma)$
+    # \textbf{Tit for Tat} strategy
+        ## Cooperate 1st round, copy opponent move after
+    # \textbf{Grim Trigger} strategy
+        ## Cooperate while opponent cooperates.
+        ## Once line is crossed, forever defect
+    # \textbf{Pavlov} strategy
+        ## Cooperate if agree, defect if disagree.
+        ## %TODO: better demonstrate
+    # \emph{Subgame perfect} (SP) 
+        ## Str. is always best response indep. of history
+        ## $\neg$SP if $\exists$ history of moves st. str. implausible
+        ## $\neg SP \iff \exists$ pair of str's not leading back to mutual cooperate
+    # \emph{Mini-Max Profile} (For zero-sum game) 
+        ## Min guaranteed payoffs for $\forall$ players on defense
+        ## Applicable in pure or mixed strategies
+}
+
+\subsection*{Stochastic Games \& Multiagent RL}
+\elist {
+    # \emph{Analogy}: MDP-RL::Stochastic game-Multiagent RL
+    # More general than MDPs or other previous models
+    # $\vec S$: states
+    # $\vec A_i$: actions for player $i$, $a,b, a \in \vec A_1, b \in \vec A_2$
+    # $\vec T$: transition probabilities $T(s, (a,b), s')$
+    # $R_i$: rewards for payer $i$, $R_1(s, (a,b)), R_2(s,(a,b))$
+    # $\gamma$: discount
+    # Impose restrictions to produce other models:
+        ## $R_1 = -R_2 \goesto$ 0-sum stochastic game
+        ## $T(s,(a,b),s') = T(s,(a,b'),s'), \\R_2(s,(a,b)) = 0, R_1(s,(a,b)) = R_1(s,(a,b')) \\\forall b' \goesto$ MDP, makes second player irrelevant
+        ## $|\vec S| = 1 \goesto$ repeated games
+    # \textbf{Zero-Sum Stochastic Games}
+        ## $Q_i^*(s,(a,b)) = R_i(s,(a,b)) + \\\gamma \sum_{s'} T(s,(a,b),s') minimax_{a',b'} Q_i^*(s',(a',b'))$
+        ## \emph{Q-Learning} for transition $<s,(a,b),(r_1,r_2),s'>$ 
+            ### $Q_i(s,(a,b)) \xleftarrow{\alpha} r_i + \gamma minimax_{a',b'} Q_i(s',(a',b'))$ 
+            ### Value Iteration works
+            ### Minimax-Q converges
+            ### Unique solution to $Q^*$
+            ### Policies can be computed independently
+            ### Update efficient (polytime)
+            ### Q functions sufficient to specify policy
+    # \textbf{General-Sum Stochastic Games (Nash-Q)}
+        ## Same as $Q_i^*$/Q-Update above, but use Nash Equilibrium instead of minimax/maximin
+        ## Value Iteration \underline{doesn't} work
+        ## Nash-Q \underline{doesn't} work
+        ## No unique solution
+        ## Policies \underline{can't} be computed independently
+        ## Update \underline{not} efficient
+        ## Q functions \underline{not} sufficient to specify policy
+}
+
+%\subsection*{Auctions}
+
+\rule{1.0\linewidth}{0.25pt}
+\scriptsize
+
+Vitaly Parnas, 2018
+
+\end{multicols}
+\end{document}
