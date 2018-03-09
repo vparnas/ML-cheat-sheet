@@ -278,6 +278,22 @@
 }
 
 \subsection*{Classification Metrics}
+\elist {
+    # Accuracy: $A(y,y^*) = (1/N)\sum_{i=0}^N 1(y^*_i = y_i)$
+    # Binary Classifications ($t_p$ = true positive)
+        ## Precision: $P(y,y^*) = |y \cap y^*|/|y| = t_p / (t_p + f_p)$
+        ## Recall: $R(y,y^*) = |y \cap y^*|/|y^*| = t_p / (t_p + f_n)$
+        ## $F_\beta(y,y^*) = (1 + \beta^2)\frac{P(y,y^*)R(y,y^*)}{\beta^2 (P(y,y^*) + R(y,y^*))}$
+    # Multiclass Classifications
+        ## $M_B(y, y^*)$: any binary scoring metric, $L$: labels
+        ## Macro: apply equal weight to each class 
+            ### $(1/|L|)\sum_{l \in L} M(y_l,y^*_l)$
+        ## Weighted: average based on class presence
+            ### $\frac{1}{\sum_{l \in L}|y^*_l|}\sum_{l \in L}|y^*_l|M(y_l, y^*_l)$
+        ## Micro
+        ## None: $\set{M(y_l,y^*_l) | l \in L}$ (metric for $\forall$ labels)
+
+}
 
 %\vfill\null
 %\columnbreak
@@ -365,12 +381,6 @@
 }
 
 \subsection*{Classification Metrics}
-\elist {
-    # Accuracy
-    # Precision
-    # Recall
-    # $F_b$
-}
 
 %\vfill\null
 %\columnbreak
